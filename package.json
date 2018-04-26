@@ -1,0 +1,14 @@
+{
+  "name": "redux-spirit",
+  "version": "1.0.0",
+  "description": "Statechart middleware for Redux",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "scion-core": "git+https://github.com/cbarsony/SCION-CORE.git#no-modern-es-features"
+  }
+}
