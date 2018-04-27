@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.reduxSpirit = undefined;
+exports.onTransition = exports.onExit = exports.onEntry = exports.reduxSpirit = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -11,7 +11,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _scionCore = require('scion-core');
 
-exports.reduxSpirit = function reduxSpirit(states, opts) {
+var actionPrefix = 'a:';
+
+var reduxSpirit = exports.reduxSpirit = function reduxSpirit(states, opts) {
   var sc = void 0;
   var options = opts || {};
 
@@ -28,6 +30,8 @@ exports.reduxSpirit = function reduxSpirit(states, opts) {
         sc = new _scionCore.Statechart({ states: states });
       } else if (isObject) {
         sc = new _scionCore.Statechart(states);
+      } else {
+        throw new Error('Invalid statechart schema');
       }
 
       var lastEvent = void 0;
@@ -53,14 +57,14 @@ exports.reduxSpirit = function reduxSpirit(states, opts) {
 
       sc.on('onEntry', function (state) {
         var action = _extends({}, lastEvent);
-        action.type = 'a:entry:' + state;
+        action.type = actionPrefix + 'entry:' + state;
         options.log && console.log('entry', state, action);
         store.dispatch(action);
       });
 
       sc.on('onExit', function (state) {
         var action = _extends({}, lastEvent);
-        action.type = 'a:exit:' + state;
+        action.type = actionPrefix + 'exit:' + state;
         options.log && console.log('exit', state, action);
         store.dispatch(action);
       });
@@ -68,7 +72,7 @@ exports.reduxSpirit = function reduxSpirit(states, opts) {
       sc.on('onTransition', function () {
         if (lastEvent && lastEvent.type) {
           var action = _extends({}, lastEvent);
-          action.type = 'a:transition:' + lastEvent.type;
+          action.type = actionPrefix + 'transition:' + lastEvent.type;
           options.log && console.log('transition', action);
           store.dispatch(action);
         }
@@ -83,7 +87,7 @@ exports.reduxSpirit = function reduxSpirit(states, opts) {
 
     return function (next) {
       return function (action) {
-        if (!action.type.startsWith('a:')) {
+        if (!action.type.startsWith(actionPrefix)) {
           if (options.log) console.log('event', action);
           sc.gen({
             name: action.type,
@@ -96,4 +100,16 @@ exports.reduxSpirit = function reduxSpirit(states, opts) {
       };
     };
   };
+};
+
+var onEntry = exports.onEntry = function onEntry(state) {
+  return actionPrefix + 'entry:' + state;
+};
+
+var onExit = exports.onExit = function onExit(state) {
+  return actionPrefix + 'exit:' + state;
+};
+
+var onTransition = exports.onTransition = function onTransition(event) {
+  return actionPrefix + 'transition:' + event;
 };
